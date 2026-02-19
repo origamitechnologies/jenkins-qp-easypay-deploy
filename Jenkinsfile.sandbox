@@ -1,35 +1,30 @@
 pipeline {
     agent any
 
-    triggers {
-        githubPush()
-    }
-
     environment {
         DEPLOY_HOST = "3.111.88.31"
         DEPLOY_USER = "deploy"
-        APP_DIR     = "/opt/ezeepluspay.sandbox/qp-easypay"
+        DEPLOY_PATH = "/opt/ezeepluspay.sandbox/qp-easypay"
         BRANCH      = "main"
     }
 
     stages {
-
         stage('Deploy Sandbox') {
             steps {
-                sshagent(credentials: ['qp-easypay-ssh']) {
+                sshagent(credentials: ['git-ssh-ksrtc-deploy']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
+                    ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} "
                         set -e
-
-                        cd $APP_DIR
+                        cd ${DEPLOY_PATH}
 
                         echo '📥 Fetching latest code'
                         git fetch origin
-                        git reset --hard origin/$BRANCH
+                        git reset --hard origin/${BRANCH}
                         git clean -fd
 
-                        echo '🧹 Clearing Laravel cache'
+                        echo '🗑️ Clearing Laravel caches'
                         php artisan optimize:clear
+                        rm -rf storage/framework/views/*
 
                         echo '⚡ Optimizing Laravel'
                         php artisan optimize
@@ -49,4 +44,3 @@ pipeline {
         }
     }
 }
-
