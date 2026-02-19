@@ -1,1 +1,44 @@
 
+pipeline {
+    agent any
+
+    environment {
+        DEPLOY_HOST = "3.111.88.31"
+        DEPLOY_USER = "ubuntu"
+        APP_DIR     = "/opt/ksrtc_payments/qp-easypay"
+        BRANCH      = "main"
+    }
+
+    stages {
+
+        stage('Deploy KSRTC Production') {
+            steps {
+                sshagent(credentials: ['qp-easypay-ssh']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "
+                        set -e
+
+                        cd $APP_DIR
+
+                        git fetch origin
+                        git reset --hard origin/$BRANCH
+                        git clean -fd
+
+                        php artisan optimize:clear
+                        php artisan optimize
+                    "
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ KSRTC deployment successful"
+        }
+        failure {
+            echo "❌ KSRTC deployment failed"
+        }
+    }
+}
