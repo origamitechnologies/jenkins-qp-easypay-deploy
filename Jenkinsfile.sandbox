@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         DEPLOY_HOST = "3.111.88.31"
-        DEPLOY_USER = "ubuntu"
+        DEPLOY_USER = "deploy"
         APP_DIR     = "/opt/ezeepluspay.sandbox/qp-easypay"
         BRANCH      = "main"
     }
