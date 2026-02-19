@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         DEPLOY_HOST = "3.111.88.31"
-        DEPLOY_USER = "deployuser"
+        DEPLOY_USER = "ubuntu"
     }
 
     stages {
